@@ -6,7 +6,12 @@
   <title>Batch QR (×5) → PDFs → ZIP</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-start justify-center py-8 pt-20">
+<body class="opacity-0 bg-gray-100 min-h-screen flex items-start justify-center py-8 pt-20">
+  <script>
+    window.addEventListener('load', () => {
+      document.body.classList.remove('opacity-0');
+    });
+  </script>
   <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
       <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
