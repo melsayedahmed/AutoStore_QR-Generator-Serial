@@ -77,6 +77,30 @@
       </div>
     </div>
 
+    <!-- Logo Size Control Section -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+      <h3 class="text-lg font-medium mb-3 text-gray-800">Logo Size Control</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700">Logo Width Ratio</label>
+          <input id="logoWidthRatio" type="number" step="0.01" min="0.05" max="0.9" value="0.45" 
+                 class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <div class="text-xs text-gray-500 mt-1">Width ratio relative to QR size (0.05 - 0.9)</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700">Logo Height Ratio</label>
+          <input id="logoHeightRatio" type="number" step="0.01" min="0.05" max="0.9" value="0.12" 
+                 class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <div class="text-xs text-gray-500 mt-1">Height ratio relative to QR size (0.05 - 0.9)</div>
+        </div>
+        <div class="flex items-end">
+          <button id="resetLogoSizeBtn" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+            Reset Logo Size
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="flex gap-3 mb-6">
       <button id="generateBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">Generate & Download ZIP</button>
       <button id="previewBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700">Preview on Page</button>
@@ -99,9 +123,8 @@
 
   <script>
   // CONFIG
-  const LOGO_PATH = "logo.png";     // ضع logo.png في نفس الفولدر (اختياري)
+  const LOGO_PATH = "Logo.png";     // ضع logo.png في نفس الفولدر (اختياري)
   const QR_CANVAS_SIZE = 150;       // حجم الكانفس المستخدم لتوليد الـ QR
-  const LOGO_RATIO = 0.15;          // نسبة حجم اللوجو من الـ QR (0.15 = 15%)
   const REPEAT_PER_SERIAL = 5;      // عدد الـ QR لكل سيريال
   const SERIALS_PER_PDF = 20;       // كم سيريال في كل PDF
   const QR_PER_ROW = 5;             // كم QR في كل صف داخل الـ PDF
@@ -183,6 +206,31 @@
   const fileInfo = document.getElementById('fileInfo');
   const progressEl = document.getElementById('progress');
   const previewContainer = document.getElementById('previewContainer');
+  const logoWidthRatioInput = document.getElementById('logoWidthRatio');
+  const logoHeightRatioInput = document.getElementById('logoHeightRatio');
+  const resetLogoSizeBtn = document.getElementById('resetLogoSizeBtn');
+
+  // Load initial logo ratios from localStorage or defaults
+  logoWidthRatioInput.value = localStorage.getItem('logoWidthRatio') || '0.25';
+  logoHeightRatioInput.value = localStorage.getItem('logoHeightRatio') || '0.15';
+
+  // Reset logo size handler
+  resetLogoSizeBtn.addEventListener('click', () => {
+    logoWidthRatioInput.value = '0.25';
+    logoHeightRatioInput.value = '0.15';
+    localStorage.removeItem('logoWidthRatio');
+    localStorage.removeItem('logoHeightRatio');
+    alert('Logo size ratios reset to default (25% width, 15% height).');
+  });
+
+  // Save logo ratios to localStorage when they change
+  logoWidthRatioInput.addEventListener('change', () => {
+    localStorage.setItem('logoWidthRatio', logoWidthRatioInput.value);
+  });
+
+  logoHeightRatioInput.addEventListener('change', () => {
+    localStorage.setItem('logoHeightRatio', logoHeightRatioInput.value);
+  });
 
   // load file handler
   loadBtn.addEventListener('click', async () => {
@@ -284,12 +332,29 @@
         // draw small white background and logo (if available)
         if (logoImg) {
           const ctx = canvas.getContext('2d');
-          const logoSize = Math.round(canvas.width * LOGO_RATIO);
-          const x = Math.round((canvas.width - logoSize) / 2);
-          const y = Math.round((canvas.height - logoSize) / 2);
+          
+          // Get current logo ratios from input fields and clamp them to valid range
+          let widthRatio = parseFloat(logoWidthRatioInput.value) || 0.25;
+          let heightRatio = parseFloat(logoHeightRatioInput.value) || 0.15;
+          
+          // Clamp values between min and max
+          widthRatio = Math.max(0.05, Math.min(0.9, widthRatio));
+          heightRatio = Math.max(0.05, Math.min(0.9, heightRatio));
+          
+          // Calculate logo dimensions
+          const logoWidth = Math.round(canvas.width * widthRatio);
+          const logoHeight = Math.round(canvas.height * heightRatio);
+          
+          // Center the logo
+          const x = Math.round((canvas.width - logoWidth) / 2);
+          const y = Math.round((canvas.height - logoHeight) / 2);
+          
+          // Draw white background rectangle
           ctx.fillStyle = "white";
-          ctx.fillRect(x - 2, y - 2, logoSize + 4, logoSize + 4);
-          ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+          ctx.fillRect(x - 2, y - 2, logoWidth + 4, logoHeight + 4);
+          
+          // Draw the logo
+          ctx.drawImage(logoImg, x, y, logoWidth, logoHeight);
         }
 
         const dataUrl = canvas.toDataURL("image/png");

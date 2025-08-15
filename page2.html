@@ -7,55 +7,41 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-start justify-center py-8 pt-20">
-    <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16 items-center">
-            <!-- الشعار -->
-            <div class="flex-shrink-0">
-              <a href="#" class="text-xl font-bold text-indigo-600">AutoStore</a>
-            </div>
-      
-            <!-- روابط كبيرة (desktop) -->
-            <div class="hidden md:flex space-x-8">
-              <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">5 × per Serial</a>
-              <a href="page2.html" class="text-gray-700 hover:text-indigo-600 font-medium">3 × per Serial</a>
-              <a href="page3.html" class="text-gray-700 hover:text-indigo-600 font-medium">2 × per Serial</a>
-            </div>
-      
-            <!-- زر قائمة الهمبرغر (mobile) -->
-            <div class="md:hidden">
-              <button id="mobile-menu-button" aria-label="Toggle menu" class="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </nav>
-      
-        <!-- القائمة الجانبية (mobile) -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-          <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">5 × per Serial</a>
-          <a href="page2.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">3 × per Serial</a>
-          <a href="page3.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">2 × per Serial</a>
+  <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex-shrink-0">
+          <a href="#" class="text-xl font-bold text-indigo-600">AutoStore</a>
         </div>
-      
-      <script>
-        const btn = document.getElementById('mobile-menu-button');
-        const menu = document.getElementById('mobile-menu');
-      
-        btn.addEventListener('click', () => {
-          menu.classList.toggle('hidden');
-        });
-      
-        // إغلاق القائمة عند اختيار رابط في الموبايل
-        menu.querySelectorAll('a').forEach(link => {
-          link.addEventListener('click', () => {
-            menu.classList.add('hidden');
-          });
-        });
-      </script>
-      </header>
+        <div class="hidden md:flex space-x-8">
+          <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">5 × per Serial</a>
+          <a href="page2.html" class="text-gray-700 hover:text-indigo-600 font-medium">3 × per Serial</a>
+          <a href="page3.html" class="text-gray-700 hover:text-indigo-600 font-medium">2 × per Serial</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobile-menu-button" aria-label="Toggle menu" class="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">5 × per Serial</a>
+      <a href="page2.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">3 × per Serial</a>
+      <a href="page3.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">2 × per Serial</a>
+    </div>
+    <script>
+      const btn = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
+      btn.addEventListener('click', () => { menu.classList.toggle('hidden'); });
+      menu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => { menu.classList.add('hidden'); });
+      });
+    </script>
+  </header>
+
   <div class="w-full max-w-6xl bg-white rounded-2xl shadow-lg p-8">
     <h1 class="text-2xl font-bold mb-4 text-center">Batch QR Generator — 3 × per Serial → PDFs → ZIP</h1>
 
@@ -74,6 +60,21 @@
           <button id="clearBtn" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">Clear</button>
         </div>
         <div id="fileInfo" class="mt-3 text-sm text-gray-700"></div>
+      </div>
+    </div>
+
+    <!-- NEW: Logo size controls -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium mb-1">Logo Width Ratio (0.1 = 10%)</label>
+        <input id="logoWidthInput" type="number" step="0.01" min="0.05" max="0.9" value="0.45" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Logo Height Ratio (0.1 = 10%)</label>
+        <input id="logoHeightInput" type="number" step="0.01" min="0.05" max="0.9" value="0.12" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div class="flex items-end gap-2">
+        <button id="resetLogoBtn" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 w-full">Reset Logo Size</button>
       </div>
     </div>
 
@@ -98,19 +99,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <script>
-  // CONFIG
-  const LOGO_PATH = "logo.png";     // ضع logo.png في نفس الفولدر (اختياري)
-  const QR_CANVAS_SIZE = 250;       // حجم الكانفس المستخدم لتوليد الـ QR
-  const LOGO_RATIO = 0.15;          // نسبة حجم اللوجو من الـ QR (0.15 = 15%)
-  const REPEAT_PER_SERIAL = 3;      // عدد الـ QR لكل سيريال
-  const SERIALS_PER_PDF = 20;       // كم سيريال في كل PDF
-  const QR_PER_ROW = 3;             // كم QR في كل صف داخل الـ PDF (تغيير من 5 إلى 3)
+  // ===== CONFIG =====
+  const LOGO_PATH = "Logo.png";     // ضع Logo.png في نفس الفولدر
+  const QR_CANVAS_SIZE = 250;        // حجم كانفاس الـ QR
+  const REPEAT_PER_SERIAL = 3;       // عدد الـ QR لكل سيريال
+  const SERIALS_PER_PDF = 50;        // كم سيريال في كل PDF
+  const QR_PER_ROW = 3;              // عدد الأكواد في الصف داخل PDF
 
-  // state
+  const DEFAULT_LOGO_RATIO_WIDTH = 0.25;
+  const DEFAULT_LOGO_RATIO_HEIGHT = 0.15;
+
+  // ===== State =====
   let loadedSerials = [];
   let generatedItems = [];
 
-  // helpers
+  // ===== Helpers =====
   function readCSVTextToSerials(text) {
     const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const serials = lines.map(line => {
@@ -132,9 +135,7 @@
           const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
           const serials = rows.map(r => r[0]).filter(s => !!s).map(String);
           resolve(serials);
-        } catch (err) {
-          reject(err);
-        }
+        } catch (err) { reject(err); }
       };
       reader.onerror = reject;
       reader.readAsArrayBuffer(file);
@@ -165,14 +166,16 @@
   function loadImage(src) {
     return new Promise((res, rej) => {
       const img = new Image();
-      img.crossOrigin = "anonymous";
+      img.crossOrigin = "anonymous"; // آمن لو من نفس الأصل
       img.onload = () => res(img);
       img.onerror = rej;
       img.src = src;
     });
   }
 
-  // UI elements
+  const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
+
+  // ===== UI elements =====
   const fileInput = document.getElementById('fileInput');
   const loadBtn = document.getElementById('loadBtn');
   const clearBtn = document.getElementById('clearBtn');
@@ -183,6 +186,18 @@
   const progressEl = document.getElementById('progress');
   const previewContainer = document.getElementById('previewContainer');
 
+  // New controls
+  const logoWidthInput = document.getElementById('logoWidthInput');
+  const logoHeightInput = document.getElementById('logoHeightInput');
+  const resetLogoBtn = document.getElementById('resetLogoBtn');
+
+  // Defaults / reset
+  resetLogoBtn.addEventListener('click', () => {
+    logoWidthInput.value = DEFAULT_LOGO_RATIO_WIDTH;
+    logoHeightInput.value = DEFAULT_LOGO_RATIO_HEIGHT;
+  });
+
+  // File load/clear
   loadBtn.addEventListener('click', async () => {
     if (!fileInput.files.length) {
       alert('Please select a file first.');
@@ -221,15 +236,18 @@
     progressEl.textContent = '';
   });
 
-  previewBtn.addEventListener('click', async () => {
-    await prepareSerialsAndGenerate(false);
-  });
-
-  generateBtn.addEventListener('click', async () => {
-    await prepareSerialsAndGenerate(true);
-  });
+  previewBtn.addEventListener('click', async () => { await prepareSerialsAndGenerate(false); });
+  generateBtn.addEventListener('click', async () => { await prepareSerialsAndGenerate(true); });
 
   async function prepareSerialsAndGenerate(shouldZip) {
+    // Read & clamp ratios; fallback to defaults if invalid
+    let rw = parseFloat(logoWidthInput?.value);
+    let rh = parseFloat(logoHeightInput?.value);
+    if (Number.isNaN(rw)) rw = DEFAULT_LOGO_RATIO_WIDTH;
+    if (Number.isNaN(rh)) rh = DEFAULT_LOGO_RATIO_HEIGHT;
+    const LOGO_RATIO_WIDTH = clamp(rw, 0.05, 0.9);
+    const LOGO_RATIO_HEIGHT = clamp(rh, 0.05, 0.9);
+
     let serials = [];
     const text = textarea.value.trim();
     if (text) {
@@ -247,22 +265,19 @@
     generatedItems = [];
     progressEl.textContent = 'Generating QR images...';
 
+    // Try to load logo; continue without it if not found
     let logoImg = null;
-    try {
-      logoImg = await loadImage(LOGO_PATH);
-    } catch (e) {
-      logoImg = null;
-      console.warn('Logo not loaded or not found; proceeding without logo.');
-    }
+    try { logoImg = await loadImage(LOGO_PATH); }
+    catch (e) { console.warn('Logo not loaded; proceeding without logo.'); }
 
-    for (let idx=0; idx<serials.length; idx++) {
+    for (let idx = 0; idx < serials.length; idx++) {
       const serial = String(serials[idx]);
-      for (let r=0; r<REPEAT_PER_SERIAL; r++) {
+      for (let r = 0; r < REPEAT_PER_SERIAL; r++) {
         const canvas = document.createElement('canvas');
         canvas.width = QR_CANVAS_SIZE;
         canvas.height = QR_CANVAS_SIZE;
 
-        const q = new QRious({
+        new QRious({
           element: canvas,
           value: serial,
           size: QR_CANVAS_SIZE,
@@ -272,24 +287,26 @@
 
         if (logoImg) {
           const ctx = canvas.getContext('2d');
-          const logoSize = Math.round(canvas.width * LOGO_RATIO);
-          const x = Math.round((canvas.width - logoSize) / 2);
-          const y = Math.round((canvas.height - logoSize) / 2);
-          ctx.fillStyle = "white";
-          ctx.fillRect(x - 2, y - 2, logoSize + 4, logoSize + 4);
-          ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+          const logoWidth = Math.round(canvas.width * LOGO_RATIO_WIDTH);
+          const logoHeight = Math.round(canvas.height * LOGO_RATIO_HEIGHT);
+          const x = Math.round((canvas.width - logoWidth) / 2);
+          const y = Math.round((canvas.height - logoHeight) / 2);
+
+          // White pad under logo for readability
+          ctx.fillStyle = 'white';
+          ctx.fillRect(x - 2, y - 2, logoWidth + 4, logoHeight + 4);
+          ctx.drawImage(logoImg, x, y, logoWidth, logoHeight);
         }
 
-        const dataUrl = canvas.toDataURL("image/png");
+        const dataUrl = canvas.toDataURL('image/png');
         generatedItems.push({ serial, dataUrl });
 
+        // Lightweight preview (cap to 200 thumbs)
         if (previewContainer && previewContainer.childElementCount < 200) {
           const card = document.createElement('div');
-          card.className = "bg-white p-2 border rounded-md flex flex-col items-center";
+          card.className = 'bg-white p-2 border rounded-md flex flex-col items-center';
           const img = document.createElement('img');
-          img.src = dataUrl;
-          img.width = 150;
-          img.height = 150;
+          img.src = dataUrl; img.width = 150; img.height = 150;
           card.appendChild(img);
           const span = document.createElement('div');
           span.className = 'text-xs mt-1 text-center';
@@ -304,10 +321,9 @@
 
     progressEl.textContent = `Prepared images: ${generatedItems.length} (this is ${REPEAT_PER_SERIAL}× serials)`;
 
-    if (!shouldZip) {
-      return;
-    }
+    if (!shouldZip) return;
 
+    // Build PDFs in chunks
     const imagesPerPdf = SERIALS_PER_PDF * REPEAT_PER_SERIAL;
     const chunks = chunkArray(generatedItems, imagesPerPdf);
 
@@ -334,22 +350,15 @@
         pdf.setLineWidth(0.5);
         pdf.rect(x - 2, y - 2, qrSizeMM + 4, qrSizeMM + 10);
 
-        try {
-          pdf.addImage(item.dataUrl, 'PNG', x, y, qrSizeMM, qrSizeMM);
-        } catch (err) {
-          console.warn('addImage failed for item', err);
-        }
+        try { pdf.addImage(item.dataUrl, 'PNG', x, y, qrSizeMM, qrSizeMM); }
+        catch (err) { console.warn('addImage failed for item', err); }
 
         pdf.setFontSize(9);
         pdf.text(String(item.serial), x + qrSizeMM/2, y + qrSizeMM + 6, { align: 'center' });
 
         count++;
-        if (count % perRow === 0) {
-          x = spacingX;
-          y += qrSizeMM + 20;
-        } else {
-          x += qrSizeMM + spacingX;
-        }
+        if (count % perRow === 0) { x = spacingX; y += qrSizeMM + 20; }
+        else { x += qrSizeMM + spacingX; }
 
         if (y + qrSizeMM > pdf.internal.pageSize.getHeight() - 20) {
           pdf.setFontSize(9);
@@ -357,8 +366,7 @@
           if (i < chunk.length - 1) {
             pdf.addPage();
             pageIndex++;
-            x = spacingX;
-            y = 20;
+            x = spacingX; y = 20;
           }
         }
       }
@@ -374,7 +382,7 @@
       await sleep(50);
     }
 
-    progressEl.textContent = `Generating ZIP...`;
+    progressEl.textContent = 'Generating ZIP...';
     const zipBlob = await zip.generateAsync({ type: 'blob' }, (metadata) => {
       progressEl.textContent = `Zipping... ${Math.round(metadata.percent)}%`;
     });
