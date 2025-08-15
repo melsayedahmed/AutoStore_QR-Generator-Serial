@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Batch QR (×2) → PDFs → ZIP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-start justify-center py-8 pt-20">
+  <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex-shrink-0">
+          <a href="#" class="text-xl font-bold text-indigo-600">AutoStore</a>
+        </div>
+        <div class="hidden md:flex space-x-8">
+          <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">5 × per Serial</a>
+          <a href="page2.html" class="text-gray-700 hover:text-indigo-600 font-medium">3 × per Serial</a>
+          <a href="page3.html" class="text-gray-700 hover:text-indigo-600 font-medium">2 × per Serial</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobile-menu-button" aria-label="Toggle menu" class="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">5 × per Serial</a>
+      <a href="page2.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">3 × per Serial</a>
+      <a href="page3.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">2 × per Serial</a>
+    </div>
+    <script>
+      const btn = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
+      btn.addEventListener('click', () => { menu.classList.toggle('hidden'); });
+      menu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => { menu.classList.add('hidden'); });
+      });
+    </script>
+  </header>
+
+  <div class="w-full max-w-6xl bg-white rounded-2xl shadow-lg p-8">
+    <h1 class="text-2xl font-bold mb-4 text-center">Batch QR Generator — 2 × per Serial → PDFs → ZIP</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Paste serials (one per line)</label>
+        <textarea id="textareaSerials" rows="8" class="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="SN001&#10;SN002&#10;SN003 ..."></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Or upload file (.xlsx, .xls, .csv)</label>
+        <input id="fileInput" type="file" accept=".xlsx, .xls, .csv" class="w-full mb-3"/>
+        <div class="text-sm text-gray-600 mb-2">If uploading Excel/CSV, first column will be used (first sheet).</div>
+        <div class="flex gap-2">
+          <button id="loadBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Load file</button>
+          <button id="clearBtn" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">Clear</button>
+        </div>
+        <div id="fileInfo" class="mt-3 text-sm text-gray-700"></div>
+      </div>
+    </div>
+
+    <!-- Logo size controls -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium mb-1">Logo Width Ratio (0.1 = 10%)</label>
+        <input id="logoWidthInput" type="number" step="0.01" min="0.05" max="0.9" value="0.20" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Logo Height Ratio (0.1 = 10%)</label>
+        <input id="logoHeightInput" type="number" step="0.01" min="0.05" max="0.9" value="0.10" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div class="flex items-end gap-2"></div>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <button id="generateBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">Generate & Download ZIP</button>
+      <button id="previewBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700">Preview on Page</button>
+      <div id="progress" class="ml-auto text-sm text-gray-600 self-center"></div>
+    </div>
+
+    <div id="previewContainer" class="grid grid-cols-2 gap-4 justify-items-center"></div>
+
+    <div class="mt-6 text-xs text-gray-500">
+      Notes: each serial → 2 identical QR codes. Each serial gets its own PDF page. Final output is a single ZIP containing all PDFs.
+    </div>
+  </div>
+
+  <!-- libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <script>
+  // ===== CONFIG =====
+  const LOGO_PATH = "src/Logo.png";
+  const QR_CANVAS_SIZE = 400;    // أكبر لتكبير الـ QR
+  const REPEAT_PER_SERIAL = 2;   // 2 QR لكل سيريال
+
+  const DEFAULT_LOGO_RATIO_WIDTH = 0.25;
+  const DEFAULT_LOGO_RATIO_HEIGHT = 0.15;
+
+  let loadedSerials = [];
+  let generatedItems = [];
+
+  function readCSVTextToSerials(text) {
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    return lines.map(line => line.split(',')[0].trim()).filter(Boolean);
+  }
+
+  function readExcelFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          resolve(rows.map(r => r[0]).filter(s => !!s).map(String));
+        } catch (err) { reject(err); }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function readCSVFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(readCSVTextToSerials(e.target.result));
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  }
+
+  function loadImage(src) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => res(img);
+      img.onerror = rej;
+      img.src = src;
+    });
+  }
+
+  const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
+
+  // ===== UI =====
+  const fileInput = document.getElementById('fileInput');
+  const loadBtn = document.getElementById('loadBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const generateBtn = document.getElementById('generateBtn');
+  const previewBtn = document.getElementById('previewBtn');
+  const textarea = document.getElementById('textareaSerials');
+  const fileInfo = document.getElementById('fileInfo');
+  const progressEl = document.getElementById('progress');
+  const previewContainer = document.getElementById('previewContainer');
+
+  const logoWidthInput = document.getElementById('logoWidthInput');
+  const logoHeightInput = document.getElementById('logoHeightInput');
+
+  loadBtn.addEventListener('click', async () => {
+    if (!fileInput.files.length) { alert('Please select a file first.'); return; }
+    const file = fileInput.files[0];
+    fileInfo.textContent = `Loading ${file.name}...`;
+    try {
+      let serials = [];
+      const name = file.name.toLowerCase();
+      if (name.endsWith('.csv')) serials = await readCSVFile(file);
+      else if (name.endsWith('.xlsx') || name.endsWith('.xls')) serials = await readExcelFile(file);
+      else { alert('Unsupported file type'); fileInfo.textContent = ''; return; }
+      loadedSerials = serials;
+      fileInfo.textContent = `Loaded ${serials.length} serial(s) from ${file.name}`;
+    } catch (err) { console.error(err); alert('Failed to read file.'); fileInfo.textContent = ''; }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    textarea.value = ''; fileInput.value = ''; loadedSerials = [];
+    previewContainer.innerHTML = ''; generatedItems = []; progressEl.textContent = '';
+  });
+
+  previewBtn.addEventListener('click', async () => { await prepareSerialsAndGenerate(false); });
+  generateBtn.addEventListener('click', async () => { await prepareSerialsAndGenerate(true); });
+
+  async function prepareSerialsAndGenerate(shouldZip) {
+    let rw = parseFloat(logoWidthInput?.value), rh = parseFloat(logoHeightInput?.value);
+    if (isNaN(rw)) rw = DEFAULT_LOGO_RATIO_WIDTH;
+    if (isNaN(rh)) rh = DEFAULT_LOGO_RATIO_HEIGHT;
+    const LOGO_RATIO_WIDTH = clamp(rw, 0.05, 0.9);
+    const LOGO_RATIO_HEIGHT = clamp(rh, 0.05, 0.9);
+
+    let serials = textarea.value.trim() ? textarea.value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean) : [...loadedSerials];
+    if (!serials.length) { alert('No serials provided'); return; }
+
+    previewContainer.innerHTML = ''; generatedItems = []; progressEl.textContent = 'Generating QR images...';
+
+    let logoImg = null;
+    try { logoImg = await loadImage(LOGO_PATH); } catch(e){ console.warn('Logo not loaded'); }
+
+    for (let idx=0; idx<serials.length; idx++){
+      const serial = String(serials[idx]);
+      for (let r=0; r<REPEAT_PER_SERIAL; r++){
+        const canvas = document.createElement('canvas'); canvas.width = QR_CANVAS_SIZE; canvas.height = QR_CANVAS_SIZE;
+        new QRious({ element: canvas, value: serial, size: QR_CANVAS_SIZE, background:'white', foreground:'black' });
+        if(logoImg){
+          const ctx = canvas.getContext('2d');
+          const w = canvas.width*LOGO_RATIO_WIDTH, h=canvas.height*LOGO_RATIO_HEIGHT;
+          ctx.fillStyle='white'; ctx.fillRect((canvas.width-w)/2-2,(canvas.height-h)/2-2,w+4,h+4);
+          ctx.drawImage(logoImg,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+        }
+        generatedItems.push({ serial, dataUrl: canvas.toDataURL('image/png') });
+
+        if(previewContainer.childElementCount<200){
+          const card = document.createElement('div'); card.className='bg-white p-2 border rounded-md flex flex-col items-center';
+          const img=document.createElement('img'); img.src=canvas.toDataURL(); img.width=150; img.height=150; card.appendChild(img);
+          const span=document.createElement('div'); span.className='text-xs mt-1 text-center'; span.textContent=serial; card.appendChild(span);
+          previewContainer.appendChild(card);
+        }
+      }
+      progressEl.textContent=`Prepared ${idx+1}/${serials.length} serials`; await sleep(0);
+    }
+
+    progressEl.textContent=`Prepared images: ${generatedItems.length} (2× per serial)`;
+    if(!shouldZip) return;
+
+    const zip = new JSZip();
+    const { jsPDF } = window.jspdf;
+
+    for(let i=0; i<generatedItems.length; i+=REPEAT_PER_SERIAL){
+      const chunk = generatedItems.slice(i,i+REPEAT_PER_SERIAL);
+      const serial = chunk[0].serial;
+      const pdf = new jsPDF('l','mm','a4');
+      const w = pdf.internal.pageSize.getWidth(), h=pdf.internal.pageSize.getHeight();
+      const qrWidth=w/2-20, qrHeight=h-40;
+      pdf.addImage(chunk[0].dataUrl,'PNG',10,20,qrWidth,qrHeight);
+      if(chunk[1]) pdf.addImage(chunk[1].dataUrl,'PNG',qrWidth+30,20,qrWidth,qrHeight);
+      pdf.setFontSize(14); pdf.text(`Serial: ${serial}`,w/2,10,{align:'center'});
+      zip.file(`qr_${serial}.pdf`, pdf.output('blob'));
+      progressEl.textContent=`Created PDF for serial ${serial} (${i/REPEAT_PER_SERIAL+1}/${loadedSerials.length})`;
+      await sleep(50);
+    }
+
+    const zipBlob = await zip.generateAsync({type:'blob'},meta=>{ progressEl.textContent=`Zipping... ${Math.round(meta.percent)}%`; });
+    saveAs(zipBlob,'qr_codes_all.zip');
+    progressEl.textContent=`Done — downloaded qr_codes_all.zip (${loadedSerials.length} PDFs)`;
+  }
+
+  function sleep(ms){ return new Promise(res=>setTimeout(res,ms)); }
+  </script>
+</body>
+</html>
