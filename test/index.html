@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Batch QR (×5) → PDFs → ZIP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
+      <div class="flex-shrink-0">
+        <a href="#" class="text-xl font-bold text-indigo-600">AutoStore</a>
+      </div>
+      <div class="hidden md:flex space-x-8">
+        <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">5 × per Serial</a>
+        <a href="page2.html" class="text-gray-700 hover:text-indigo-600 font-medium">3 × per Serial</a>
+        <a href="page3.html" class="text-gray-700 hover:text-indigo-600 font-medium">2 × per Serial</a>
+      </div>
+      <div class="md:hidden">
+        <button id="mobile-menu-button" aria-label="Toggle menu" class="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+          </svg>
+        </button>
+      </div>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">5 × per Serial</a>
+      <a href="page2.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">3 × per Serial</a>
+      <a href="page3.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">2 × per Serial</a>
+    </div>
+  </header>
+
+  <main class="pt-24 max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+    <h1 class="text-2xl font-bold mb-4 text-center">Batch QR Generator — 5 × per Serial → PDFs → ZIP</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Paste serials (one per line)</label>
+        <textarea id="textareaSerials" rows="8" class="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="SN001&#10;SN002&#10;SN003 ..."></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Or upload file (.xlsx, .xls, .csv)</label>
+        <input id="fileInput" type="file" accept=".xlsx, .xls, .csv" class="w-full mb-3"/>
+        <div class="text-sm text-gray-600 mb-2">If uploading Excel/CSV, first column will be used (first sheet).</div>
+        <div class="flex gap-2">
+          <button id="loadBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Load file</button>
+          <button id="clearBtn" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">Clear</button>
+        </div>
+        <div id="fileInfo" class="mt-3 text-sm text-gray-700"></div>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+      <h3 class="text-lg font-medium mb-3 text-gray-800">Logo Size Control</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700">Logo Width Ratio</label>
+          <input id="logoWidthRatio" type="number" step="0.01" min="0.05" max="0.9" value="0.20" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <div class="text-xs text-gray-500 mt-1">Width ratio relative to QR size (0.05 - 0.9)</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 text-gray-700">Logo Height Ratio</label>
+          <input id="logoHeightRatio" type="number" step="0.01" min="0.05" max="0.9" value="0.10" class="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <div class="text-xs text-gray-500 mt-1">Height ratio relative to QR size (0.05 - 0.9)</div>
+        </div>
+        <div class="flex items-end">
+          <button id="resetLogoSizeBtn" class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Reset Logo Size</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <button id="generateBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">Generate & Download ZIP</button>
+      <button id="previewBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700">Preview on Page</button>
+      <div id="progress" class="ml-auto text-sm text-gray-600 self-center"></div>
+    </div>
+
+    <div id="previewContainer" class="grid grid-cols-5 gap-4 justify-items-center"></div>
+
+    <div class="mt-6 text-xs text-gray-500">
+      Notes: each serial → 5 identical QR codes. Every 20 serials (20 × 5 = 100 QR) are grouped into one PDF. Final output is a single ZIP containing all PDFs.
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

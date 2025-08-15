@@ -1,0 +1,2 @@
+body { opacity: 0; transition: opacity 0.5s; font-family: sans-serif; }
+body.loaded { opacity: 1; }
