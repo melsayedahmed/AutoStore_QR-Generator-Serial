@@ -52,7 +52,39 @@
   </style>
   
 </head>
-<body class="bg-gray-100 min-h-screen p-6">
+<body class="bg-gray-100 min-h-screen p-6 py-8 pt-20">
+  <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex-shrink-0">
+          <a href="#" class="text-xl font-bold text-indigo-600">AutoStore</a>
+        </div>
+        <div class="hidden md:flex space-x-8">
+          <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">3&5 × per Serial</a>
+          <a href="page3.html" class="text-gray-700 hover:text-indigo-600 font-medium">2 × per Serial</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobile-menu-button" aria-label="Toggle menu" class="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">3&5 × per Serial</a>
+      <a href="page3.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">2 × per Serial</a>
+    </div>
+    <script>
+      const btn = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
+      btn.addEventListener('click', () => { menu.classList.toggle('hidden'); });
+      menu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => { menu.classList.add('hidden'); });
+      });
+    </script>
+  </header>
   <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow">
     <h1 class="text-2xl font-bold mb-4 text-center">QR Generator</h1>
     <div class="mb-4">
