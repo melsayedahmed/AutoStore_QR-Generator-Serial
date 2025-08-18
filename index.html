@@ -81,11 +81,13 @@
       const qrDiv = document.createElement("div");
       new QRCode(qrDiv, { text: serial, width: size, height: size, correctLevel: QRCode.CorrectLevel.H });
 
-      // نضيف اللوجو
-      const logo = document.createElement("img");
-      const LOGO_PATH = "src/Logo.png";     // ضع logo.png في نفس الفولدر (اختياري)/
-      logo.className = "qr-logo";
-      qrDiv.appendChild(logo);
+   // نضيف اللوجو
+const logo = document.createElement("img");
+const LOGO_PATH = "src/Logo.png"; // ضع الصورة في نفس الفولدر أو مسار صحيح
+logo.src = LOGO_PATH;             // مهم جداً عشان تظهر الصورة
+logo.className = "qr-logo";
+qrDiv.appendChild(logo);
+
 
       const label = document.createElement("div");
       label.className = "qr-label";
