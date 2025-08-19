@@ -15,33 +15,37 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      margin: 8px;
+      justify-content: flex-start;
       page-break-inside: avoid;
       text-align: center;
       position: relative;
-      min-width: 120px;
       word-break: break-word;
+      height: auto;
     }
+
     .qr-box canvas {
       display: block;
       margin: 0 auto;
     }
+
     .qr-label {
       margin-top: 6px;
       font-size: 14px;
       font-weight: bold;
       width: 100%;
       text-align: center;
-      white-space: pre-wrap; /* يحافظ على الأسطر */
+      white-space: normal;      /* النص يتكسر */
+      word-wrap: break-word;    /* يكسر الكلمات الطويلة */
+      overflow-wrap: anywhere;  /* يكسر في أي مكان */
     }
+
     .row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+      display: grid;
+      gap: 16px;
       margin-bottom: 20px;
       page-break-inside: avoid;
     }
+
     .qr-logo {
       position: absolute;
       top: 50%;
@@ -55,7 +59,7 @@
     }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-6 pt-20">
+<body class="bg-gray-100 min-h-screen p-6 pt-20 pt-20">
   <header class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
@@ -63,7 +67,7 @@
           <a href="#" class="text-xl font-bold text-indigo-600">AutoStore</a>
         </div>
         <div class="hidden md:flex space-x-8">
-          <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">5 × per Serial</a>
+          <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">5&3 × per Serial</a>
           <a href="page3.html" class="text-gray-700 hover:text-indigo-600 font-medium">2 × per Serial</a>
         </div>
         <div class="md:hidden">
@@ -76,7 +80,7 @@
       </div>
     </nav>
     <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">5 × per Serial</a>
+      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">5&3 × per Serial</a>
       <a href="page3.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100 hover:text-indigo-600">2 × per Serial</a>
     </div>
     <script>
@@ -88,7 +92,7 @@
       });
     </script>
   </header>
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow">
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow">
     <h1 class="text-2xl font-bold mb-4 text-center">QR Generator</h1>
     <div class="mb-4">
       <label class="font-medium">Single Serial (3 QRs):</label>
@@ -109,21 +113,9 @@
       document.getElementById("preview").innerHTML = "";
     }
 
-    function splitSerial(serial, maxLineLength) {
-      const words = serial.split(/(-)/); // يحافظ على الفواصل "-"
-      let lines = [];
-      let currentLine = "";
-
-      words.forEach(word => {
-        if ((currentLine + word).length > maxLineLength) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine += word;
-        }
-      });
-      if (currentLine) lines.push(currentLine);
-      return lines.join("\n");
+    function splitSerial(serial, chunkSize = 20) {
+      // يقسم السيريال الطويل على سطور كل 20 حرف
+      return serial.match(new RegExp('.{1,' + chunkSize + '}', 'g')).join('\n');
     }
 
     function createQRBox(serial, size) {
@@ -142,18 +134,18 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-     // نضيف اللوجو
-  const logo = document.createElement("img");
-const LOGO_PATH = "src/Logo.png"; // ضع الصورة في نفس الفولدر أو مسار صحيح
-logo.src = LOGO_PATH;             // مهم جداً عشان تظهر الصورة
-logo.className = "qr-logo";
-logo.style.width = size * 0.35 + "px"; // 20% من حجم QR
-logo.style.height = size * 0.2 + "px";
-qrDiv.appendChild(logo);
+      // إضافة اللوجو
+      const logo = document.createElement("img");
+      const LOGO_PATH = "src/Logo.png"; // غير المسار لو محتاج
+      logo.src = LOGO_PATH;
+      logo.className = "qr-logo";
+      logo.style.width = size * 0.35 + "px";
+      logo.style.height = size * 0.2 + "px";
+      qrDiv.appendChild(logo);
 
       const label = document.createElement("div");
       label.className = "qr-label";
-      label.innerText = splitSerial(serial, 10); // يوزع السيريال على أسطر حسب طول كل سطر
+      label.innerText = splitSerial(serial); // يكسر السيريال على أسطر
 
       box.appendChild(qrDiv);
       box.appendChild(label);
@@ -171,8 +163,9 @@ qrDiv.appendChild(logo);
       if (singleSerial) {
         const row = document.createElement("div");
         row.className = "row";
+        row.style.gridTemplateColumns = "repeat(3, 1fr)";
         for (let i = 0; i < 3; i++) {
-          row.appendChild(createQRBox(singleSerial, 160));
+          row.appendChild(createQRBox(singleSerial, 160)); // 3 QR = 160px
         }
         preview.appendChild(row);
       }
@@ -180,8 +173,9 @@ qrDiv.appendChild(logo);
       multiSerials.forEach(serial => {
         const row = document.createElement("div");
         row.className = "row";
+        row.style.gridTemplateColumns = "repeat(5, 1fr)";
         for (let i = 0; i < 5; i++) {
-          row.appendChild(createQRBox(serial, 120));
+          row.appendChild(createQRBox(serial, 120)); // 5 QR = 120px
         }
         preview.appendChild(row);
       });
