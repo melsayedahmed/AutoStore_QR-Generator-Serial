@@ -102,8 +102,8 @@
   <script>
   // ===== CONFIG =====
   const LOGO_PATH = "src/Logo.png";
-  const QR_CANVAS_SIZE = 400;    // أكبر لتكبير الـ QR
-  const REPEAT_PER_SERIAL = 2;   // 2 QR لكل سيريال
+  const QR_CANVAS_SIZE = 400;
+  const REPEAT_PER_SERIAL = 2;
 
   const DEFAULT_LOGO_RATIO_WIDTH = 0.25;
   const DEFAULT_LOGO_RATIO_HEIGHT = 0.15;
@@ -239,11 +239,25 @@
       const chunk = generatedItems.slice(i,i+REPEAT_PER_SERIAL);
       const serial = chunk[0].serial;
       const pdf = new jsPDF('l','mm','a4');
-      const w = pdf.internal.pageSize.getWidth(), h=pdf.internal.pageSize.getHeight();
-      const qrWidth=w/2-20, qrHeight=h-40;
-      pdf.addImage(chunk[0].dataUrl,'PNG',10,20,qrWidth,qrHeight);
-      if(chunk[1]) pdf.addImage(chunk[1].dataUrl,'PNG',qrWidth+30,20,qrWidth,qrHeight);
-      pdf.setFontSize(14); pdf.text(`Serial: ${serial}`,w/2,10,{align:'center'});
+      const w = pdf.internal.pageSize.getWidth();
+      const h = pdf.internal.pageSize.getHeight();
+
+      // --- تعديل: نخلي الـ QR مربع + السيريال تحت ---
+      const qrSize = Math.min(w/2 - 40, h - 60);
+      const yPos = (h - qrSize) / 2;
+
+      // QR الأول
+      pdf.addImage(chunk[0].dataUrl, 'PNG', 20, yPos, qrSize, qrSize);
+      pdf.setFontSize(12);
+      pdf.text(chunk[0].serial, 20 + qrSize/2, yPos + qrSize + 10, {align: 'center'});
+
+      // QR الثاني (لو موجود)
+      if (chunk[1]) {
+        const xPos2 = w/2 + 20;
+        pdf.addImage(chunk[1].dataUrl, 'PNG', xPos2, yPos, qrSize, qrSize);
+        pdf.text(chunk[1].serial, xPos2 + qrSize/2, yPos + qrSize + 10, {align: 'center'});
+      }
+
       zip.file(`qr_${serial}.pdf`, pdf.output('blob'));
       progressEl.textContent=`Created PDF for serial ${serial} (${i/REPEAT_PER_SERIAL+1}/${loadedSerials.length})`;
       await sleep(50);
