@@ -140,7 +140,7 @@
       logo.src = LOGO_PATH;
       logo.className = "qr-logo";
       logo.style.width = size * 0.35 + "px";
-      logo.style.height = size * 0.2 + "px";
+      logo.style.height = size * 0.15 + "px";
       qrDiv.appendChild(logo);
 
       const label = document.createElement("div");
@@ -175,7 +175,7 @@
         row.className = "row";
         row.style.gridTemplateColumns = "repeat(5, 1fr)";
         for (let i = 0; i < 5; i++) {
-          row.appendChild(createQRBox(serial, 120)); // 5 QR = 120px
+          row.appendChild(createQRBox(serial, 85)); // 5 QR = 120px
         }
         preview.appendChild(row);
       });
@@ -188,8 +188,8 @@
         filename: "qrs.pdf",
         image: { type: "jpeg", quality: 1 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "landscape" }
-      };
+        jsPDF: { unit: "cm", format: [32, 47], orientation: "portrait" }
+    };
       html2pdf().set(opt).from(element).save();
     }
   </script>
